@@ -10,7 +10,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(async (result: { data: { session: { user: { id: string; email: string } } | null } }) => {
+      const session = result?.data?.session ?? null;
       if (session?.user) {
         const { data } = await supabase
           .from("users")
@@ -24,7 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: string, session: { user: { id: string; email: string } } | null) => {
         if (session?.user) {
           const { data } = await supabase
             .from("users")
